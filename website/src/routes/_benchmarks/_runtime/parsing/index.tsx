@@ -1,3 +1,4 @@
+import { dataTypeSchema } from "@schema-benchmarks/bench";
 import { shallowFilter, toggleFilter } from "@schema-benchmarks/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -9,7 +10,6 @@ import {
   dataTypeProps,
   errorTypeProps,
   optimizeTypeProps,
-  optionalDataTypeSchema,
   optionalErrorTypeSchema,
   optionalOptimizeTypeSchema,
   sortParamsEntries,
@@ -25,7 +25,7 @@ import Content from "./content.mdx";
 
 const searchSchema = v.object({
   optimizeType: optionalOptimizeTypeSchema,
-  dataType: optionalDataTypeSchema,
+  dataType: v.optional(dataTypeSchema, "valid"),
   errorType: optionalErrorTypeSchema,
   ...sortParamsEntries,
 });
