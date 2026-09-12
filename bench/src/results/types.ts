@@ -4,6 +4,7 @@ import {
 } from "@schema-benchmarks/json-schema-tests/types";
 import {
   errorTypeSchema,
+  fromTypeStyleSchema,
   jsonSchemaDirectionSchema,
   jsonSchemaConversionTargetSchema,
   optimizeTypeSchema,
@@ -143,6 +144,67 @@ export const getEmptyJsonSchemaResults = (): JsonSchemaBenchResults => ({
     roundtrip: getEmptyJsonComplianceResults(),
   },
 });
+
+/** How an inferred type relates to the data the shared product schema describes. */
+export const typeMatchSchema = v.picklist(["exact", "narrower", "wider", "any", "mismatch"]);
+export type TypeMatch = v.InferOutput<typeof typeMatchSchema>;
+
+/**
+ * `text` is what an editor shows on hover, and `chars` its length - which is the point of
+ * recording it, so it stays the true length even when `text` had to be truncated to keep the
+ * results file readable.
+ */
+const inferredTypeSchema = v.object({
+  text: v.string(),
+  chars: v.number(),
+  truncated: v.optional(v.boolean()),
+  instantiations: v.number(),
+});
+export type InferredType = v.InferOutput<typeof inferredTypeSchema>;
+
+const inferredDirectionSchema = v.object({
+  ...inferredTypeSchema.entries,
+  /** The expression the type is read with, e.g. `z.output<typeof schema>`. */
+  snippet: v.string(),
+  match: typeMatchSchema,
+});
+export type InferredDirection = v.InferOutput<typeof inferredDirectionSchema>;
+
+/**
+ * Building a schema from a type that already exists, with the construction type checked. `checked`
+ * is false when the library accepts a schema that doesn't match the type, so the annotation buys
+ * nothing.
+ */
+const fromTypeSchema = v.object({
+  style: fromTypeStyleSchema,
+  snippet: v.string(),
+  checked: v.boolean(),
+  note: v.optional(v.string()),
+});
+export type FromTypeResult = v.InferOutput<typeof fromTypeSchema>;
+
+export const typesResultSchema = v.object({
+  id: v.string(),
+  libraryName: v.string(),
+  version: v.string(),
+  note: v.optional(v.string()),
+  /** The type of the schema value itself, as an editor shows it. */
+  schema: inferredTypeSchema,
+  input: inferredDirectionSchema,
+  output: inferredDirectionSchema,
+  /** Declaring the schema and reading both types out of it. */
+  instantiations: v.number(),
+  /** Absent when the library has no way to build a schema from an existing type. */
+  fromType: v.optional(fromTypeSchema),
+});
+export type TypesResult = v.InferOutput<typeof typesResultSchema>;
+
+export const typesBenchResultsSchema = v.object({
+  /** A count only means something next to the compiler that produced it. */
+  typescriptVersion: v.string(),
+  results: v.array(typesResultSchema),
+});
+export type TypesBenchResults = v.InferOutput<typeof typesBenchResultsSchema>;
 
 const stringResultSchema = v.object({
   ...runtimeBenchResultSchema.entries,

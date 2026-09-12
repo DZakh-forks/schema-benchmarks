@@ -176,4 +176,22 @@ export default defineBenchmarks({
       note: "unknown",
     },
   ],
+  types: {
+    imports: ts`
+      import * as Schema from "effect/Schema";
+      import { getEffectSchema } from ".";
+    `,
+    schema: "getEffectSchema()",
+    input: "Schema.Schema.Encoded<typeof __schema>",
+    output: "Schema.Schema.Type<typeof __schema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const __schema: Schema.Schema<JsonSchemaOutputData> = Schema.Struct({ id: Schema.Number, name: Schema.String, price: Schema.Number });
+      `,
+      invalid: ts`
+        const __schema: Schema.Schema<JsonSchemaOutputData> = Schema.Struct({ id: Schema.Number, name: Schema.String, price: Schema.String });
+      `,
+    },
+  },
 });

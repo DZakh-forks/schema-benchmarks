@@ -187,4 +187,22 @@ export default defineBenchmarks({
       `,
     },
   },
+  types: {
+    imports: ts`
+      import * as S from "sury";
+      import { getSurySchema } from ".";
+    `,
+    schema: "getSurySchema()",
+    input: "S.Input<typeof __schema>",
+    output: "S.Output<typeof __schema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const __schema = S.schema({ id: S.number, name: S.string, price: S.number }) satisfies S.Schema<JsonSchemaOutputData>;
+      `,
+      invalid: ts`
+        const __schema = S.schema({ id: S.number, name: S.string, price: S.string }) satisfies S.Schema<JsonSchemaOutputData>;
+      `,
+    },
+  },
 });

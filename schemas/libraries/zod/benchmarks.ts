@@ -215,4 +215,22 @@ export default defineBenchmarks({
       note: "compile",
     },
   ],
+  types: {
+    imports: ts`
+      import * as z from "zod";
+      import { getZodSchema } from ".";
+    `,
+    schema: "getZodSchema()",
+    input: "z.input<typeof __schema>",
+    output: "z.output<typeof __schema>",
+    fromType: {
+      style: "builder",
+      valid: ts`
+        const __schema = z.toZod<JsonSchemaOutputData>()(z.object({ id: z.number(), name: z.string(), price: z.number() }));
+      `,
+      invalid: ts`
+        const __schema = z.toZod<JsonSchemaOutputData>()(z.object({ id: z.number(), name: z.string(), price: z.string() }));
+      `,
+    },
+  },
 });

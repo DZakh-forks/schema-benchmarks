@@ -1,0 +1,12 @@
+@import "#src/shared/styles/layout";
+
+@import "./-components/table/index.css";
+@import "./-components/list/index.css";
+@import "./-components/detail/index.css";
+
+.types-from-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}

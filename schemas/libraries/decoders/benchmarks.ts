@@ -41,4 +41,22 @@ export default defineBenchmarks({
     },
     snippet: ts`schema.verify(data)`,
   },
+  types: {
+    imports: ts`
+      import { object, number, string, type Decoder, type DecoderType } from "decoders";
+      import { getDecoderSchema } from ".";
+    `,
+    schema: "getDecoderSchema()",
+    input: "DecoderType<typeof __schema>",
+    output: "DecoderType<typeof __schema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const __schema: Decoder<JsonSchemaOutputData> = object({ id: number, name: string, price: number });
+      `,
+      invalid: ts`
+        const __schema: Decoder<JsonSchemaOutputData> = object({ id: number, name: string, price: string });
+      `,
+    },
+  },
 });

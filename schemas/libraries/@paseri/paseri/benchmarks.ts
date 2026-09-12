@@ -78,4 +78,23 @@ export default defineBenchmarks({
     },
     snippet: ts`p.object(shape).parse(data)`,
   },
+  types: {
+    imports: ts`
+      import * as p from "@paseri/paseri";
+      import { getPaseriSchema } from ".";
+    `,
+    schema: "getPaseriSchema()",
+    input: "p.Infer<typeof __schema>",
+    output: "p.Infer<typeof __schema>",
+    note: "schema annotated as p.Schema<ProductData>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const __schema: p.Schema<JsonSchemaOutputData> = p.object({ id: p.number(), name: p.string(), price: p.number() });
+      `,
+      invalid: ts`
+        const __schema: p.Schema<JsonSchemaOutputData> = p.object({ id: p.number(), name: p.string(), price: p.string() });
+      `,
+    },
+  },
 });

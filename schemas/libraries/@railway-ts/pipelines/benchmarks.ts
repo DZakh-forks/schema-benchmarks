@@ -84,4 +84,22 @@ export default defineBenchmarks({
     url: createStringBenchmark(url, "url()"),
     uuid: createStringBenchmark(uuid, "uuid()"),
   },
+  types: {
+    imports: ts`
+      import { object, number, string, required, type InferSchemaType, type Validator } from "@railway-ts/pipelines/schema";
+      import { getRailwayTsSchema } from ".";
+    `,
+    schema: "getRailwayTsSchema()",
+    input: "InferSchemaType<typeof __schema>",
+    output: "InferSchemaType<typeof __schema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const __schema: Validator<unknown, JsonSchemaOutputData> = object({ id: required(number()), name: required(string()), price: required(number()) });
+      `,
+      invalid: ts`
+        const __schema: Validator<unknown, JsonSchemaOutputData> = object({ id: required(number()), name: required(string()), price: required(string()) });
+      `,
+    },
+  },
 });

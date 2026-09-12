@@ -289,4 +289,25 @@ export default defineBenchmarks({
     },
     acceptsUnknown: true,
   },
+  types: {
+    imports: ts`
+      import type { Satisfies } from "@schema-benchmarks/utils";
+      import * as Type from "typebox";
+      import { getTypeboxSchema } from ".";
+    `,
+    schema: "getTypeboxSchema()",
+    input: "Type.StaticEncode<typeof __schema>",
+    output: "Type.StaticDecode<typeof __schema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const __schema = Type.Object({ id: Type.Number(), name: Type.String(), price: Type.Number() });
+        type __Checked = Satisfies<Type.Static<typeof __schema>, JsonSchemaOutputData>;
+      `,
+      invalid: ts`
+        const __schema = Type.Object({ id: Type.Number(), name: Type.String(), price: Type.String() });
+        type __Checked = Satisfies<Type.Static<typeof __schema>, JsonSchemaOutputData>;
+      `,
+    },
+  },
 });
