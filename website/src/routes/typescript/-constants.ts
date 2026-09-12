@@ -1,5 +1,6 @@
-import type { TypeMatch } from "@schema-benchmarks/bench";
+import type { FromTypeResult, TypeMatch } from "@schema-benchmarks/bench";
 import type { FromTypeCase, FromTypeStyle } from "@schema-benchmarks/schemas";
+import { fromTypeCaseSchema } from "@schema-benchmarks/schemas";
 
 export const sortableKeys = ["libraryName", "downloads", "instantiations", "chars"] as const;
 export type SortableKey = (typeof sortableKeys)[number];
@@ -38,4 +39,25 @@ export const fromTypeCaseLabels: Record<FromTypeCase, { label: string; supportin
     supporting: "a field required where the type makes it optional",
   },
   extraField: { label: "Extra field", supporting: "a field the type doesn't declare" },
+};
+
+/** The ways a schema built from a type can disagree with it, that a library lets through. */
+export const missedFromTypeCases = (fromType: FromTypeResult) =>
+  fromTypeCaseSchema.options.filter((name) => !fromType.cases[name]);
+
+/**
+ * What a library rejects matters more than whether it has the API at all: one that checks only
+ * assignability takes a schema requiring a field the type makes optional, and that schema then
+ * rejects data the type calls valid. A schema generated from the type cannot disagree with it, so
+ * it is exact by construction.
+ */
+export const fromTypeVerdict = (fromType: FromTypeResult | undefined) => {
+  if (!fromType) return "no";
+  return missedFromTypeCases(fromType).length ? "unsafe" : "exact";
+};
+
+export const fromTypeVerdictLabels: Record<ReturnType<typeof fromTypeVerdict>, string> = {
+  exact: "Exact",
+  unsafe: "Unsafe",
+  no: "No",
 };

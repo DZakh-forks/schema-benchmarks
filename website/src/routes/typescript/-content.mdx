@@ -19,8 +19,8 @@ runtime; one that allows less rejects values the schema accepts.
 **From type** is the other direction: building a schema for a type you already have. It is `Exact`
 only when the compiler rejects every way the two can disagree - a field of the wrong type, a field
 left out, a field required where the type makes it optional, and a field the type never declared.
-`Partial` means the check is assignability, which takes the last two and builds a schema that
-disagrees with the type it was written for.
+`Unsafe` means some of those compile, and the schema they build disagrees with the type it was
+written for.
 
 **Instantiations** is the work the compiler does to declare the schema and read its output type.
 It is what grows into slow editor feedback and slow builds as a codebase adds schemas.
