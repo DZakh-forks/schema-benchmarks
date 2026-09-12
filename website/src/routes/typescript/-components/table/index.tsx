@@ -4,7 +4,6 @@ import { getTransitionName, numFormatter, shortNumFormatter } from "@schema-benc
 import bem from "react-bem-helper";
 
 import { DownloadCount } from "#src/routes/_benchmarks/-components/count.tsx";
-import { FromTypeText } from "#src/routes/typescript/-components/from-type.tsx";
 import { MatchCheckbox } from "#src/routes/typescript/-components/match.tsx";
 import type { SortableKey } from "#src/routes/typescript/-constants.ts";
 import { InternalLinkToggleButton } from "#src/shared/components/button/toggle.tsx";
@@ -55,7 +54,6 @@ export function TypesTable({
           </SortableHeaderLink>
           <th className="action">Input</th>
           <th className="action">Output</th>
-          <th>From type</th>
           <SortableHeaderLink
             {...SortableHeaderLink.getProps("instantiations", sortState, linkOptions)}
             className="numeric"
@@ -99,9 +97,6 @@ export function TypesTable({
             </td>
             <td className="action">
               <MatchCheckbox match={result.output.match} />
-            </td>
-            <td>
-              <FromTypeText fromType={result.fromType} />
             </td>
             <td className="numeric">{formatCount(result.instantiations)}</td>
             <td className="fit-content">

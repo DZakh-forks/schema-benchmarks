@@ -120,14 +120,5 @@ export default defineBenchmarks({
     schema: "getValibotSchema()",
     input: "v.InferInput<typeof __schema>",
     output: "v.InferOutput<typeof __schema>",
-    fromType: {
-      style: "annotation",
-      valid: ts`
-        const __schema: v.GenericSchema<JsonSchemaOutputData> = v.object({ id: v.number(), name: v.string(), price: v.number() });
-      `,
-      invalid: ts`
-        const __schema: v.GenericSchema<JsonSchemaOutputData> = v.object({ id: v.number(), name: v.string(), price: v.string() });
-      `,
-    },
   },
 });

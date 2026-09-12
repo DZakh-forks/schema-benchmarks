@@ -50,20 +50,11 @@ export default defineBenchmarks({
   },
   types: {
     imports: ts`
-      import { object, number, string, type InferInput, type InferOutput, type Schema } from "@remix-run/data-schema";
+      import type { InferInput, InferOutput } from "@remix-run/data-schema";
       import { getRemixSchema } from ".";
     `,
     schema: "getRemixSchema()",
     input: "InferInput<typeof __schema>",
     output: "InferOutput<typeof __schema>",
-    fromType: {
-      style: "annotation",
-      valid: ts`
-        const __schema: Schema<unknown, JsonSchemaOutputData> = object({ id: number(), name: string(), price: number() });
-      `,
-      invalid: ts`
-        const __schema: Schema<unknown, JsonSchemaOutputData> = object({ id: number(), name: string(), price: string() });
-      `,
-    },
   },
 });

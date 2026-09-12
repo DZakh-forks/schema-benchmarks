@@ -123,14 +123,5 @@ export default defineBenchmarks({
     schema: "getYupSchema()",
     input: "yup.InferType<typeof __schema>",
     output: "yup.InferType<typeof __schema>",
-    fromType: {
-      style: "annotation",
-      valid: ts`
-        const __schema: yup.ObjectSchema<JsonSchemaOutputData> = yup.object({ id: yup.number().required(), name: yup.string().required(), price: yup.number().required() });
-      `,
-      invalid: ts`
-        const __schema: yup.ObjectSchema<JsonSchemaOutputData> = yup.object({ id: yup.number().required(), name: yup.string().required(), price: yup.string().required() });
-      `,
-    },
   },
 });

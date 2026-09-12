@@ -4,7 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import bem from "react-bem-helper";
 
 import { DownloadCount } from "#src/routes/_benchmarks/-components/count.tsx";
-import { fromTypeStyleLabels, typeMatchLabels } from "#src/routes/typescript/-constants.ts";
+import { typeMatchLabels } from "#src/routes/typescript/-constants.ts";
 import { Button } from "#src/shared/components/button/index.tsx";
 import { CodeBlock } from "#src/shared/components/code/index.tsx";
 import {
@@ -106,25 +106,6 @@ export function TypesDetail({ result }: TypesDetailProps) {
                 </section>
                 <Direction title="Input" direction={result.input} formatCount={formatCount} />
                 <Direction title="Output" direction={result.output} formatCount={formatCount} />
-                <section {...cls("section")} aria-label="From an existing type">
-                  <hgroup {...cls("section-header")}>
-                    <h4 className="typo-subtitle1">From an existing type</h4>
-                    <p className="typo-caption">
-                      {result.fromType ? (
-                        <>
-                          {fromTypeStyleLabels[result.fromType.style].label}
-                          {result.fromType.checked
-                            ? ""
-                            : " · a schema that doesn't match the type is still accepted"}
-                          {result.fromType.note ? ` · ${result.fromType.note}` : ""}
-                        </>
-                      ) : (
-                        "The library has no way to build a schema from a type that already exists."
-                      )}
-                    </p>
-                  </hgroup>
-                  {result.fromType && <CodeBlock showCopy>{result.fromType.snippet}</CodeBlock>}
-                </section>
               </div>
             </DialogContent>
           )}

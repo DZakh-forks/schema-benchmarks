@@ -1,5 +1,4 @@
 import type { TypeMatch } from "@schema-benchmarks/bench";
-import type { FromTypeStyle } from "@schema-benchmarks/schemas";
 
 export const sortableKeys = ["libraryName", "downloads", "instantiations", "chars"] as const;
 export type SortableKey = (typeof sortableKeys)[number];
@@ -21,10 +20,4 @@ export const typeMatchLabels: Record<TypeMatch, { label: string; supporting: str
   },
   any: { label: "Any", supporting: "The library infers `any`, so nothing is type checked." },
   mismatch: { label: "Mismatch", supporting: "The inferred type is not the data type." },
-};
-
-/** How a library takes a type that already exists and checks a schema against it. */
-export const fromTypeStyleLabels: Record<FromTypeStyle, { label: string; icon: string }> = {
-  builder: { label: "Builder", icon: "build" },
-  annotation: { label: "Annotation", icon: "label" },
 };

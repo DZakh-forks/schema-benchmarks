@@ -120,20 +120,14 @@ export interface DirectionProbeResult {
   instantiations: number;
 }
 
-export interface FromTypeProbeResult {
-  /** The wrong schema was rejected, so the construction really is checked against the type. */
-  checked: boolean;
-}
-
 export interface TypeProbeResult {
   schema: { text: string; instantiations: number };
   input: DirectionProbeResult;
   output: DirectionProbeResult;
   instantiations: number;
-  fromType?: FromTypeProbeResult;
 }
 
-const PRELUDE = `import type { JsonSchemaOutputData, ProductData } from "#src";\n`;
+const PRELUDE = `import type { ProductData } from "#src";\n`;
 const SCHEMA_DECL = (config: TypeInferenceBenchmarkConfig) =>
   `const __schema = ${config.schema};\ntype __Schema = typeof __schema;\n`;
 const INPUT_DECL = (config: TypeInferenceBenchmarkConfig) => `type __Input = ${config.input};\n`;
@@ -160,19 +154,6 @@ const assertChecks = (label: string, { diagnostics }: Checked) => {
   if (diagnostics.length) {
     throw new Error(`The ${label} probe does not type check:\n${diagnosticsText(diagnostics)}`);
   }
-};
-
-// A schema built from a type is only worth anything if the compiler rejects a wrong one, so the
-// deliberately wrong version is compiled too and has to fail.
-const probeFromType = (
-  fileName: string,
-  imports: string,
-  fromType: NonNullable<TypeInferenceBenchmarkConfig["fromType"]>,
-): FromTypeProbeResult => {
-  const valid = check(fileName, `${imports}${fromType.valid}\n`);
-  assertChecks("from-type", valid);
-  const invalid = check(fileName, `${imports}${fromType.invalid}\n`);
-  return { checked: invalid.diagnostics.length > 0 };
 };
 
 /**
@@ -213,7 +194,6 @@ export const probeTypes = (
 
     const isTrue = (name: string) => matches[name] === "true";
     return {
-      fromType: config.fromType && probeFromType(fileName, imports, config.fromType),
       schema: {
         text: types.__Schema ?? "",
         instantiations: schemaOnly.instantiations - baseline.instantiations,

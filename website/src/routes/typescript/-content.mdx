@@ -25,24 +25,6 @@ schemas.
 its length in characters. A short one is a tooltip you can read; a long one is a wall of generics
 you scroll past, and the same text ends up in every error message that mentions the schema.
 
-**From type** goes the other way: whether the library lets you build a schema for a type you
-already have, with the construction type checked. Some provide a builder the type is passed to,
-which points at the field that doesn't match; others rely on annotating the declaration with the
-library's schema type. We compile both a matching and a deliberately wrong schema, so a library is
-only credited when the wrong one is rejected.
-
-```ts responsive
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-}
-
-const schema = z.toZod<Product>()(
-  z.object({ id: z.number(), name: z.string(), price: z.number() }),
-);
-```
-
-Open a row to read all three types in full, and the schema built from the type.
+Open a row to read all three types in full.
 
 Libraries with no type inference at all, such as the JSON Schema validators, are not listed.

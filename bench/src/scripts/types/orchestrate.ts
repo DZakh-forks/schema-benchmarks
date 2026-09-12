@@ -23,12 +23,8 @@ function toInferredType(text: string, instantiations: number): InferredType {
   };
 }
 
-/**
- * The probe prefixes its own declarations with `__` to stay clear of whatever a library exports,
- * and names the target type after the benchmark data. Neither reads well on the site.
- */
-const toSnippet = (source: string) =>
-  source.replaceAll(/\b__(\w+)/gu, "$1").replaceAll("JsonSchemaOutputData", "Product");
+/** The probe names the schema `__schema`; a reader of the site should see `schema`. */
+const toSnippet = (expression: string) => expression.replaceAll("__schema", "schema");
 
 const results: Array<TypesResult> = [];
 
@@ -57,13 +53,6 @@ for (const [libraryPath, getConfig] of Object.entries(libraries)) {
       match: probed.output.match,
     },
     instantiations: probed.instantiations,
-    fromType: types.fromType &&
-      probed.fromType && {
-        style: types.fromType.style,
-        snippet: toSnippet(types.fromType.valid),
-        checked: probed.fromType.checked,
-        note: types.fromType.note,
-      },
   });
   const { instantiations, output } = results.at(-1)!;
   console.log(`  ${instantiations} instantiations, output ${output.match}, ${output.chars} chars`);

@@ -4,7 +4,6 @@ import {
 } from "@schema-benchmarks/json-schema-tests/types";
 import {
   errorTypeSchema,
-  fromTypeStyleSchema,
   jsonSchemaDirectionSchema,
   jsonSchemaConversionTargetSchema,
   optimizeTypeSchema,
@@ -170,19 +169,6 @@ const inferredDirectionSchema = v.object({
 });
 export type InferredDirection = v.InferOutput<typeof inferredDirectionSchema>;
 
-/**
- * Building a schema from a type that already exists, with the construction type checked. `checked`
- * is false when the library accepts a schema that doesn't match the type, so the annotation buys
- * nothing.
- */
-const fromTypeSchema = v.object({
-  style: fromTypeStyleSchema,
-  snippet: v.string(),
-  checked: v.boolean(),
-  note: v.optional(v.string()),
-});
-export type FromTypeResult = v.InferOutput<typeof fromTypeSchema>;
-
 export const typesResultSchema = v.object({
   id: v.string(),
   libraryName: v.string(),
@@ -194,8 +180,6 @@ export const typesResultSchema = v.object({
   output: inferredDirectionSchema,
   /** Declaring the schema and reading both types out of it. */
   instantiations: v.number(),
-  /** Absent when the library has no way to build a schema from an existing type. */
-  fromType: v.optional(fromTypeSchema),
 });
 export type TypesResult = v.InferOutput<typeof typesResultSchema>;
 

@@ -18,10 +18,7 @@ test.describe("desktop view", { tag: "@desktop" }, () => {
   });
 
   test("it displays results table", async ({ typescriptPage }) => {
-    const row = typescriptPage.desktop.tableHandle.getRow({ library: "typia" });
-
-    await expect(row).toBeVisible();
-    await expect(row.getCell("from type")).toContainText("Builder");
+    await expect(typescriptPage.desktop.tableHandle.getRow({ library: "typia" })).toBeVisible();
   });
 
   test("table can be sorted by column", async ({ typescriptPage }) => {
@@ -39,7 +36,6 @@ test.describe("desktop view", { tag: "@desktop" }, () => {
 
     await expect(typescriptPage.details.dialog).toBeVisible();
     await expect(typescriptPage.details.dialog.getByText("Type on hover")).toBeVisible();
-    await expect(typescriptPage.details.dialog.getByText("From an existing type")).toBeVisible();
 
     await typescriptPage.details.close();
     await expect(typescriptPage.details.dialog).toBeHidden();

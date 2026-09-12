@@ -104,20 +104,11 @@ export default defineBenchmarks({
   },
   types: {
     imports: ts`
-      import { object, number, string, type Describe, type Infer } from "superstruct";
+      import type { Infer } from "superstruct";
       import { getSuperstructSchema } from ".";
     `,
     schema: "getSuperstructSchema()",
     input: "Infer<typeof __schema>",
     output: "Infer<typeof __schema>",
-    fromType: {
-      style: "annotation",
-      valid: ts`
-        const __schema: Describe<JsonSchemaOutputData> = object({ id: number(), name: string(), price: number() });
-      `,
-      invalid: ts`
-        const __schema: Describe<JsonSchemaOutputData> = object({ id: number(), name: string(), price: string() });
-      `,
-    },
   },
 });
