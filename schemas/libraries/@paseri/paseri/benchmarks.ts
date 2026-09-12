@@ -88,11 +88,8 @@ export default defineBenchmarks({
       "The inferred type of a paseri schema cannot be named or serialized (TS2883, TS7056), so a schema has to be annotated with the type it describes.",
     fromType: {
       style: "annotation",
-      valid: ts`
-        const probeSchema: p.Schema<JsonSchemaOutputData> = p.object({ id: p.number(), name: p.string(), price: p.number() });
-      `,
-      invalid: ts`
-        const probeSchema: p.Schema<JsonSchemaOutputData> = p.object({ id: p.number(), name: p.string(), price: p.string() });
+      schema: ts`
+        const probeSchema: p.Schema<Product> = p.object({ id: p.number(), name: p.string(), price: p.number() });
       `,
     },
   },

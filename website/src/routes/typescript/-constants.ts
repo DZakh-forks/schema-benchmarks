@@ -1,5 +1,5 @@
 import type { TypeMatch } from "@schema-benchmarks/bench";
-import type { FromTypeStyle } from "@schema-benchmarks/schemas";
+import type { FromTypeCase, FromTypeStyle } from "@schema-benchmarks/schemas";
 
 export const sortableKeys = ["libraryName", "downloads", "instantiations", "chars"] as const;
 export type SortableKey = (typeof sortableKeys)[number];
@@ -24,7 +24,18 @@ export const typeMatchLabels: Record<TypeMatch, { label: string; supporting: str
 };
 
 /** How a library takes a type that already exists and checks a schema against it. */
-export const fromTypeStyleLabels: Record<FromTypeStyle, { label: string; icon: string }> = {
-  builder: { label: "Builder", icon: "build" },
-  annotation: { label: "Annotation", icon: "label" },
+export const fromTypeStyleLabels: Record<FromTypeStyle, { label: string }> = {
+  builder: { label: "Builder" },
+  annotation: { label: "Annotation" },
+};
+
+/** The ways a schema can disagree with the type it was built for. */
+export const fromTypeCaseLabels: Record<FromTypeCase, { label: string; supporting: string }> = {
+  wrongType: { label: "Wrong type", supporting: "a field of the wrong type" },
+  missingField: { label: "Missing field", supporting: "a field of the type left out" },
+  optionalField: {
+    label: "Optional field",
+    supporting: "a field required where the type makes it optional",
+  },
+  extraField: { label: "Extra field", supporting: "a field the type doesn't declare" },
 };

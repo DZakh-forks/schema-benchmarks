@@ -122,11 +122,8 @@ export default defineBenchmarks({
     output: "v.InferOutput<typeof probeSchema>",
     fromType: {
       style: "annotation",
-      valid: ts`
-        const probeSchema: v.GenericSchema<JsonSchemaOutputData> = v.object({ id: v.number(), name: v.string(), price: v.number() });
-      `,
-      invalid: ts`
-        const probeSchema: v.GenericSchema<JsonSchemaOutputData> = v.object({ id: v.number(), name: v.string(), price: v.string() });
+      schema: ts`
+        const probeSchema: v.GenericSchema<Product> = v.object({ id: v.number(), name: v.string(), price: v.number() });
       `,
     },
   },

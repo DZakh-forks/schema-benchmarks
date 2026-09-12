@@ -173,12 +173,10 @@ export default defineBenchmarks({
     note: "the schema is a TypeScript type",
     fromType: {
       style: "builder",
-      valid: ts`
-        const probeSchema: (input: unknown) => JsonSchemaOutputData = typia.createAssert<JsonSchemaOutputData>();
+      schema: ts`
+        const probeSchema = typia.createAssert<Product>();
       `,
-      invalid: ts`
-        const probeSchema: (input: unknown) => JsonSchemaOutputData = typia.createAssert<{ id: number; name: string; price: string }>();
-      `,
+      derived: true,
     },
   },
 });

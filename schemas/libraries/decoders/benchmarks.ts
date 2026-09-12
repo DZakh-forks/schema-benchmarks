@@ -52,11 +52,8 @@ export default defineBenchmarks({
     output: "DecoderType<typeof probeSchema>",
     fromType: {
       style: "annotation",
-      valid: ts`
-        const probeSchema: Decoder<JsonSchemaOutputData> = object({ id: number, name: string, price: number });
-      `,
-      invalid: ts`
-        const probeSchema: Decoder<JsonSchemaOutputData> = object({ id: number, name: string, price: string });
+      schema: ts`
+        const probeSchema: Decoder<Product> = object({ id: number, name: string, price: number });
       `,
     },
   },

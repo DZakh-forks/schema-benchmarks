@@ -4,6 +4,7 @@ import {
 } from "@schema-benchmarks/json-schema-tests/types";
 import {
   errorTypeSchema,
+  fromTypeCaseSchema,
   fromTypeStyleSchema,
   jsonSchemaDirectionSchema,
   jsonSchemaConversionTargetSchema,
@@ -181,14 +182,16 @@ const inferenceSchema = v.object({
 export type Inference = v.InferOutput<typeof inferenceSchema>;
 
 /**
- * Building a schema from a type that already exists, with the construction type checked. `checked`
- * is false when the library accepts a schema that doesn't match the type, so the annotation buys
- * nothing.
+ * Building a schema from a type that already exists. `cases` says which ways of disagreeing with
+ * the type the compiler rejects: a library that checks only assignability accepts a schema that
+ * requires a field the type makes optional, or declares one the type never had.
  */
 const fromTypeSchema = v.object({
   style: fromTypeStyleSchema,
   snippet: v.string(),
-  checked: v.boolean(),
+  cases: v.object(v.entriesFromList(fromTypeCaseSchema.options, v.boolean())),
+  /** The schema is generated from the type, so the two cannot disagree. */
+  derived: v.optional(v.boolean()),
   note: v.optional(v.string()),
 });
 export type FromTypeResult = v.InferOutput<typeof fromTypeSchema>;

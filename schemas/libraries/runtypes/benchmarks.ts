@@ -69,11 +69,8 @@ export default defineBenchmarks({
     output: "Static<typeof probeSchema>",
     fromType: {
       style: "annotation",
-      valid: ts`
-        const probeSchema: Runtype.Core<JsonSchemaOutputData> = RtObject({ id: RtNumber, name: RtString, price: RtNumber });
-      `,
-      invalid: ts`
-        const probeSchema: Runtype.Core<JsonSchemaOutputData> = RtObject({ id: RtNumber, name: RtString, price: RtString });
+      schema: ts`
+        const probeSchema: Runtype.Core<Product> = RtObject({ id: RtNumber, name: RtString, price: RtNumber });
       `,
     },
   },

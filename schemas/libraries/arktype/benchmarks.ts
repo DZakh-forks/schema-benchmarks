@@ -132,11 +132,8 @@ export default defineBenchmarks({
     output: `(typeof probeSchema)["infer"]`,
     fromType: {
       style: "annotation",
-      valid: ts`
-        const probeSchema: Type<JsonSchemaOutputData> = type({ id: "number", name: "string", price: "number" });
-      `,
-      invalid: ts`
-        const probeSchema: Type<JsonSchemaOutputData> = type({ id: "number", name: "string", price: "string" });
+      schema: ts`
+        const probeSchema: Type<Product> = type({ id: "number", name: "string", price: "number" });
       `,
     },
   },

@@ -83,11 +83,8 @@ export default defineBenchmarks({
     output: "t.TypeOf<typeof probeSchema>",
     fromType: {
       style: "annotation",
-      valid: ts`
-        const probeSchema: t.Type<JsonSchemaOutputData> = t.type({ id: t.number, name: t.string, price: t.number });
-      `,
-      invalid: ts`
-        const probeSchema: t.Type<JsonSchemaOutputData> = t.type({ id: t.number, name: t.string, price: t.string });
+      schema: ts`
+        const probeSchema: t.Type<Product> = t.type({ id: t.number, name: t.string, price: t.number });
       `,
     },
   },

@@ -300,13 +300,9 @@ export default defineBenchmarks({
     output: "Type.StaticDecode<typeof probeSchema>",
     fromType: {
       style: "annotation",
-      valid: ts`
+      schema: ts`
         const probeSchema = Type.Object({ id: Type.Number(), name: Type.String(), price: Type.Number() });
-        type ProbeChecked = Satisfies<Type.Static<typeof probeSchema>, JsonSchemaOutputData>;
-      `,
-      invalid: ts`
-        const probeSchema = Type.Object({ id: Type.Number(), name: Type.String(), price: Type.String() });
-        type ProbeChecked = Satisfies<Type.Static<typeof probeSchema>, JsonSchemaOutputData>;
+        type ProbeChecked = Satisfies<Type.Static<typeof probeSchema>, Product>;
       `,
     },
   },

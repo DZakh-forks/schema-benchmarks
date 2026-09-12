@@ -27,8 +27,12 @@ function toInferredType(text: string, instantiations: number): InferredType {
  * The probe prefixes its own declarations to stay clear of whatever a library exports, and names
  * the target type after the benchmark data. Neither reads well on the site.
  */
-const toSnippet = (source: string) =>
-  source.replaceAll("probeSchema", "schema").replaceAll("JsonSchemaOutputData", "Product");
+const toSnippet = (source: string) => source.replaceAll("probeSchema", "schema");
+
+const describeFromType = (fromType: TypesResult["fromType"]) =>
+  fromType
+    ? `${fromType.style} (${Object.values(fromType.cases).filter(Boolean).length}/4 caught)`
+    : "no";
 
 const results: Array<TypesResult> = [];
 
@@ -65,8 +69,9 @@ for (const [libraryPath, getConfig] of Object.entries(libraries)) {
     fromType: types.fromType &&
       probed.fromType && {
         style: types.fromType.style,
-        snippet: toSnippet(types.fromType.valid),
-        checked: probed.fromType.checked,
+        snippet: toSnippet(types.fromType.schema),
+        cases: probed.fromType.cases,
+        derived: types.fromType.derived,
         note: types.fromType.note,
       },
   });
@@ -74,8 +79,8 @@ for (const [libraryPath, getConfig] of Object.entries(libraries)) {
   console.log(
     probedInference
       ? `  ${probedInference.instantiations} instantiations, output ${probedInference.output.match}` +
-          `, ${probedInference.schema.chars} chars, from type ${fromType?.style ?? "no"}`
-      : `  no inference, from type ${fromType?.style ?? "no"}`,
+          `, ${probedInference.schema.chars} chars, from type ${describeFromType(fromType)}`
+      : `  no inference, from type ${describeFromType(fromType)}`,
   );
 }
 

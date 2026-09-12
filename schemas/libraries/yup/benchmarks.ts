@@ -125,11 +125,8 @@ export default defineBenchmarks({
     output: "yup.InferType<typeof probeSchema>",
     fromType: {
       style: "annotation",
-      valid: ts`
-        const probeSchema: yup.ObjectSchema<JsonSchemaOutputData> = yup.object({ id: yup.number().required(), name: yup.string().required(), price: yup.number().required() });
-      `,
-      invalid: ts`
-        const probeSchema: yup.ObjectSchema<JsonSchemaOutputData> = yup.object({ id: yup.number().required(), name: yup.string().required(), price: yup.string().required() });
+      schema: ts`
+        const probeSchema: yup.ObjectSchema<Product> = yup.object({ id: yup.number().required(), name: yup.string().required(), price: yup.number().required() });
       `,
     },
   },

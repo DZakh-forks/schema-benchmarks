@@ -94,11 +94,8 @@ export default defineBenchmarks({
     output: "InferType<typeof probeSchema>",
     fromType: {
       style: "annotation",
-      valid: ts`
-        const probeSchema: BaseValidator<JsonSchemaOutputData> = s.object({ id: s.number(), name: s.string(), price: s.number() });
-      `,
-      invalid: ts`
-        const probeSchema: BaseValidator<JsonSchemaOutputData> = s.object({ id: s.number(), name: s.string(), price: s.string() });
+      schema: ts`
+        const probeSchema: BaseValidator<Product> = s.object({ id: s.number(), name: s.string(), price: s.number() });
       `,
     },
   },

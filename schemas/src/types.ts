@@ -192,12 +192,24 @@ export interface CodecBenchmarkConfig extends Omit<BaseBenchmarkConfig, "snippet
 }
 
 /**
- * How a library takes an existing type: `builder` is an API the type is passed to, which reports
- * the field that doesn't match; `annotation` is the library's schema type on the declaration,
- * which reports whatever assignability reports.
+ * How a library takes an existing type: `builder` is an API the type is passed to; `annotation` is
+ * the library's schema type on the declaration, which reports whatever assignability reports.
  */
 export const fromTypeStyleSchema = /* @__PURE__ */ v.picklist(["builder", "annotation"]);
 export type FromTypeStyle = v.InferOutput<typeof fromTypeStyleSchema>;
+
+/**
+ * The ways a schema can disagree with the type it is built for. Each one is compiled against a
+ * schema for `{ id: number; name: string; price: number }`, and a library only catches the mistake
+ * if the compiler rejects it.
+ */
+export const fromTypeCaseSchema = /* @__PURE__ */ v.picklist([
+  "wrongType",
+  "missingField",
+  "optionalField",
+  "extraField",
+]);
+export type FromTypeCase = v.InferOutput<typeof fromTypeCaseSchema>;
 
 /**
  * How a library's types are read, for the TypeScript inference benchmarks.
@@ -236,10 +248,14 @@ export interface TypeInferenceBenchmarkConfig {
    */
   fromType?: {
     style: FromTypeStyle;
-    /** Builds a schema for `JsonSchemaOutputData`. */
-    valid: string;
-    /** The same schema with `price` declared as a string. */
-    invalid: string;
+    /**
+     * Declares a schema for the type `Product`, which the probe defines. It is compiled once
+     * against the type the schema describes, and once against each way a schema can disagree
+     * with it.
+     */
+    schema: string;
+    /** The schema is generated from the type, so the two cannot disagree. */
+    derived?: boolean;
     note?: string;
   };
 }

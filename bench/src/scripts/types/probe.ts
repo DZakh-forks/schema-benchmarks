@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as url from "node:url";
 
-import type { TypeInferenceBenchmarkConfig } from "@schema-benchmarks/schemas";
+import type { FromTypeCase, TypeInferenceBenchmarkConfig } from "@schema-benchmarks/schemas";
 import ts from "typescript-5";
 
 /**
@@ -151,8 +151,8 @@ export interface InferenceProbeResult {
 }
 
 export interface FromTypeProbeResult {
-  /** The wrong schema was rejected, so the construction really is checked against the type. */
-  checked: boolean;
+  /** Whether the compiler rejected each way a schema can disagree with the type. */
+  cases: Record<FromTypeCase, boolean>;
 }
 
 export interface TypeProbeResult {
@@ -190,17 +190,40 @@ const assertChecks = (label: string, { diagnostics }: Checked) => {
   }
 };
 
-// A schema built from a type is only worth anything if the compiler rejects a wrong one, so the
-// deliberately wrong version is compiled too and has to fail.
+// The schema always describes `{ id: number; name: string; price: number }`; each case changes the
+// type it is checked against. A library that only checks assignability accepts a schema that
+// requires a field the type makes optional, or declares one the type doesn't have - both build a
+// schema that disagrees with the type it was written for.
+const FROM_TYPE_CASES: Record<FromTypeCase | "matching", string> = {
+  matching: "{ id: number; name: string; price: number }",
+  wrongType: "{ id: number; name: string; price: string }",
+  missingField: "{ id: number; name: string; price: number; extra: boolean }",
+  optionalField: "{ id: number; name: string; price?: number }",
+  extraField: "{ id: number; name: string }",
+};
+
 const probeFromType = (
   fileName: string,
   imports: string,
   fromType: NonNullable<TypeInferenceBenchmarkConfig["fromType"]>,
 ): FromTypeProbeResult => {
-  const valid = check(fileName, `${imports}${fromType.valid}\n`);
-  assertChecks("from-type", valid);
-  const invalid = check(fileName, `${imports}${fromType.invalid}\n`);
-  return { checked: invalid.diagnostics.length > 0 };
+  const compile = (type: string) =>
+    check(fileName, `${imports}type Product = ${type};\n${fromType.schema}\n`);
+
+  assertChecks("from-type", compile(FROM_TYPE_CASES.matching));
+
+  // A schema generated from the type cannot disagree with it, so there is nothing to reject.
+  const rejected = (name: FromTypeCase) =>
+    fromType.derived || compile(FROM_TYPE_CASES[name]).diagnostics.length > 0;
+
+  return {
+    cases: {
+      wrongType: rejected("wrongType"),
+      missingField: rejected("missingField"),
+      optionalField: rejected("optionalField"),
+      extraField: rejected("extraField"),
+    },
+  };
 };
 
 const probeInference = (

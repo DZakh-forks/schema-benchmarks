@@ -178,11 +178,8 @@ export default defineBenchmarks({
     output: "Schema.Schema.Type<typeof probeSchema>",
     fromType: {
       style: "annotation",
-      valid: ts`
-        const probeSchema: Schema.Schema<JsonSchemaOutputData> = Schema.Struct({ id: Schema.Number, name: Schema.String, price: Schema.Number });
-      `,
-      invalid: ts`
-        const probeSchema: Schema.Schema<JsonSchemaOutputData> = Schema.Struct({ id: Schema.Number, name: Schema.String, price: Schema.String });
+      schema: ts`
+        const probeSchema: Schema.Schema<Product> = Schema.Struct({ id: Schema.Number, name: Schema.String, price: Schema.Number });
       `,
     },
   },

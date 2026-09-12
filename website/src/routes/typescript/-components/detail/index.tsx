@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import bem from "react-bem-helper";
 
 import { DownloadCount } from "#src/routes/_benchmarks/-components/count.tsx";
+import { FromTypeCases } from "#src/routes/typescript/-components/from-type.tsx";
 import { fromTypeStyleLabels, typeMatchLabels } from "#src/routes/typescript/-constants.ts";
 import { Button } from "#src/shared/components/button/index.tsx";
 import { CodeBlock } from "#src/shared/components/code/index.tsx";
@@ -141,11 +142,16 @@ export function TypesDetail({ result }: TypesDetailProps) {
                   title="From an existing type"
                   supporting={
                     result.fromType
-                      ? `${fromTypeStyleLabels[result.fromType.style].label}${result.fromType.checked ? "" : " · a schema that doesn't match the type is still accepted"}${result.fromType.note ? ` · ${result.fromType.note}` : ""}`
+                      ? `${fromTypeStyleLabels[result.fromType.style].label}${result.fromType.derived ? " · the schema is generated from the type" : ""}${result.fromType.note ? ` · ${result.fromType.note}` : ""}`
                       : "The library has no way to build a schema from a type that already exists."
                   }
                 >
-                  {result.fromType && <CodeBlock showCopy>{result.fromType.snippet}</CodeBlock>}
+                  {result.fromType && (
+                    <>
+                      <CodeBlock showCopy>{result.fromType.snippet}</CodeBlock>
+                      <FromTypeCases fromType={result.fromType} />
+                    </>
+                  )}
                 </Section>
               </div>
             </DialogContent>
