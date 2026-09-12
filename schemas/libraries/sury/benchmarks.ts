@@ -32,6 +32,7 @@ const jsonSchemaSubject = S.schemaOf<JsonSchemaOutputData>()({
   name: S.string,
   price: S.string.with(S.to, S.number),
 });
+const isValid = S.isInput(schema);
 const parse = S.parseOrThrow(getSurySchema());
 const parseAsResult = S.parseAsResult(getSurySchema());
 const encode = S.encodeOrThrow(S.bigint, S.string);
@@ -58,12 +59,26 @@ export default defineBenchmarks({
       note: "compiled",
     },
   ],
-  validation: {
-    run(data) {
-      return S.isInput(schema, data);
+  validation: [
+    {
+      run(data) {
+        return S.isInput(schema, data);
+      },
+      snippet: ts`S.isInput(S.schema(value), data)`,
     },
-    snippet: ts`S.isInput(S.schema(value), data)`,
-  },
+    {
+      run(data) {
+        return isValid(data);
+      },
+      snippet: ts`
+        // setup-start
+        const isValid = S.isInput(S.schema(value));
+        // setup-end
+        isValid(data);
+      `,
+      note: "compiled",
+    },
+  ],
   parsing: {
     allErrors: [
       {
