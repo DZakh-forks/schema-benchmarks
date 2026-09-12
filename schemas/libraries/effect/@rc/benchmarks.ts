@@ -174,7 +174,7 @@ export default defineBenchmarks({
       import { getEffectSchema } from ".";
     `,
     schema: "getEffectSchema()",
-    input: "Schema.Codec.Encoded<typeof __schema>",
-    output: "Schema.Schema.Type<typeof __schema>",
+    input: "Schema.Codec.Encoded<typeof probeSchema>",
+    output: "Schema.Schema.Type<typeof probeSchema>",
   },
 });

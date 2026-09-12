@@ -47,7 +47,7 @@ export default defineBenchmarks({
       import { getDecoderSchema } from ".";
     `,
     schema: "getDecoderSchema()",
-    input: "DecoderType<typeof __schema>",
-    output: "DecoderType<typeof __schema>",
+    input: "DecoderType<typeof probeSchema>",
+    output: "DecoderType<typeof probeSchema>",
   },
 });

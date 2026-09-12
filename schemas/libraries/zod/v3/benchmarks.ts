@@ -109,7 +109,7 @@ export default defineBenchmarks({
       import { getZodSchema } from ".";
     `,
     schema: "getZodSchema()",
-    input: "z.input<typeof __schema>",
-    output: "z.output<typeof __schema>",
+    input: "z.input<typeof probeSchema>",
+    output: "z.output<typeof probeSchema>",
   },
 });

@@ -127,7 +127,7 @@ export default defineBenchmarks({
       import { getArkTypeSchema } from ".";
     `,
     schema: "getArkTypeSchema()",
-    input: `(typeof __schema)["inferIn"]`,
-    output: `(typeof __schema)["infer"]`,
+    input: `(typeof probeSchema)["inferIn"]`,
+    output: `(typeof probeSchema)["infer"]`,
   },
 });

@@ -108,7 +108,7 @@ export default defineBenchmarks({
       import { getSuperstructSchema } from ".";
     `,
     schema: "getSuperstructSchema()",
-    input: "Infer<typeof __schema>",
-    output: "Infer<typeof __schema>",
+    input: "Infer<typeof probeSchema>",
+    output: "Infer<typeof probeSchema>",
   },
 });

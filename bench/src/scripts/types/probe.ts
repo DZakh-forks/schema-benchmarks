@@ -129,17 +129,18 @@ export interface TypeProbeResult {
 
 const PRELUDE = `import type { ProductData } from "#src";\n`;
 const SCHEMA_DECL = (config: TypeInferenceBenchmarkConfig) =>
-  `const __schema = ${config.schema};\ntype __Schema = typeof __schema;\n`;
-const INPUT_DECL = (config: TypeInferenceBenchmarkConfig) => `type __Input = ${config.input};\n`;
-const OUTPUT_DECL = (config: TypeInferenceBenchmarkConfig) => `type __Output = ${config.output};\n`;
+  `const probeSchema = ${config.schema};\ntype ProbeSchema = typeof probeSchema;\n`;
+const INPUT_DECL = (config: TypeInferenceBenchmarkConfig) => `type ProbeInput = ${config.input};\n`;
+const OUTPUT_DECL = (config: TypeInferenceBenchmarkConfig) =>
+  `type ProbeOutput = ${config.output};\n`;
 
 // `0 extends 1 & T` is the standard `any` detector: only `any` distributes into both sides.
-const MATCH_DECLS = `type __InputIsAny = 0 extends 1 & __Input ? true : false;
-type __OutputIsAny = 0 extends 1 & __Output ? true : false;
-type __InputToData = [__Input] extends [ProductData] ? true : false;
-type __DataToInput = [ProductData] extends [__Input] ? true : false;
-type __OutputToData = [__Output] extends [ProductData] ? true : false;
-type __DataToOutput = [ProductData] extends [__Output] ? true : false;
+const MATCH_DECLS = `type ProbeInputIsAny = 0 extends 1 & ProbeInput ? true : false;
+type ProbeOutputIsAny = 0 extends 1 & ProbeOutput ? true : false;
+type ProbeInputToData = [ProbeInput] extends [ProductData] ? true : false;
+type ProbeDataToInput = [ProductData] extends [ProbeInput] ? true : false;
+type ProbeOutputToData = [ProbeOutput] extends [ProductData] ? true : false;
+type ProbeDataToOutput = [ProductData] extends [ProbeOutput] ? true : false;
 `;
 
 const toMatch = (isAny: boolean, toData: boolean, fromData: boolean): TypeMatch => {
@@ -195,17 +196,25 @@ export const probeTypes = (
     const isTrue = (name: string) => matches[name] === "true";
     return {
       schema: {
-        text: types.__Schema ?? "",
+        text: types.ProbeSchema ?? "",
         instantiations: schemaOnly.instantiations - baseline.instantiations,
       },
       input: {
-        text: types.__Input ?? "",
-        match: toMatch(isTrue("__InputIsAny"), isTrue("__InputToData"), isTrue("__DataToInput")),
+        text: types.ProbeInput ?? "",
+        match: toMatch(
+          isTrue("ProbeInputIsAny"),
+          isTrue("ProbeInputToData"),
+          isTrue("ProbeDataToInput"),
+        ),
         instantiations: withInput.instantiations - schemaOnly.instantiations,
       },
       output: {
-        text: types.__Output ?? "",
-        match: toMatch(isTrue("__OutputIsAny"), isTrue("__OutputToData"), isTrue("__DataToOutput")),
+        text: types.ProbeOutput ?? "",
+        match: toMatch(
+          isTrue("ProbeOutputIsAny"),
+          isTrue("ProbeOutputToData"),
+          isTrue("ProbeDataToOutput"),
+        ),
         instantiations: withOutput.instantiations - schemaOnly.instantiations,
       },
       instantiations: withBoth.instantiations - baseline.instantiations,

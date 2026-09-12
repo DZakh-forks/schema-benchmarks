@@ -64,7 +64,7 @@ export default defineBenchmarks({
       import { getRuntypesSchema } from ".";
     `,
     schema: "getRuntypesSchema()",
-    input: "Static<typeof __schema>",
-    output: "Static<typeof __schema>",
+    input: "Static<typeof probeSchema>",
+    output: "Static<typeof probeSchema>",
   },
 });

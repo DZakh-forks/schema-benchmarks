@@ -89,7 +89,7 @@ export default defineBenchmarks({
       import { getShapeshiftSchema } from ".";
     `,
     schema: "getShapeshiftSchema()",
-    input: "InferType<typeof __schema>",
-    output: "InferType<typeof __schema>",
+    input: "InferType<typeof probeSchema>",
+    output: "InferType<typeof probeSchema>",
   },
 });

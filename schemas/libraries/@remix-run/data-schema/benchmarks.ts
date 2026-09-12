@@ -54,7 +54,7 @@ export default defineBenchmarks({
       import { getRemixSchema } from ".";
     `,
     schema: "getRemixSchema()",
-    input: "InferInput<typeof __schema>",
-    output: "InferOutput<typeof __schema>",
+    input: "InferInput<typeof probeSchema>",
+    output: "InferOutput<typeof probeSchema>",
   },
 });

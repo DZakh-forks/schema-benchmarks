@@ -84,8 +84,8 @@ export default defineBenchmarks({
       import { getPaseriSchema } from ".";
     `,
     schema: "getPaseriSchema()",
-    input: "p.Infer<typeof __schema>",
-    output: "p.Infer<typeof __schema>",
+    input: "p.Infer<typeof probeSchema>",
+    output: "p.Infer<typeof probeSchema>",
     note: "schema annotated as p.Schema<ProductData>",
   },
 });

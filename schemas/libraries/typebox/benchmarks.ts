@@ -295,7 +295,7 @@ export default defineBenchmarks({
       import { getTypeboxSchema } from ".";
     `,
     schema: "getTypeboxSchema()",
-    input: "Type.StaticEncode<typeof __schema>",
-    output: "Type.StaticDecode<typeof __schema>",
+    input: "Type.StaticEncode<typeof probeSchema>",
+    output: "Type.StaticDecode<typeof probeSchema>",
   },
 });

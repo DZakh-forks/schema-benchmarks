@@ -193,7 +193,7 @@ export default defineBenchmarks({
       import { getSurySchema } from ".";
     `,
     schema: "getSurySchema()",
-    input: "S.Input<typeof __schema>",
-    output: "S.Output<typeof __schema>",
+    input: "S.Input<typeof probeSchema>",
+    output: "S.Output<typeof probeSchema>",
   },
 });

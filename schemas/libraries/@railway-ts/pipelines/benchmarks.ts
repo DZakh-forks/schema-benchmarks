@@ -90,7 +90,7 @@ export default defineBenchmarks({
       import { getRailwayTsSchema } from ".";
     `,
     schema: "getRailwayTsSchema()",
-    input: "InferSchemaType<typeof __schema>",
-    output: "InferSchemaType<typeof __schema>",
+    input: "InferSchemaType<typeof probeSchema>",
+    output: "InferSchemaType<typeof probeSchema>",
   },
 });

@@ -121,7 +121,7 @@ export default defineBenchmarks({
       import { getYupSchema } from ".";
     `,
     schema: "getYupSchema()",
-    input: "yup.InferType<typeof __schema>",
-    output: "yup.InferType<typeof __schema>",
+    input: "yup.InferType<typeof probeSchema>",
+    output: "yup.InferType<typeof probeSchema>",
   },
 });

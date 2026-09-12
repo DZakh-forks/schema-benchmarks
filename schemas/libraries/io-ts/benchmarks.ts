@@ -79,7 +79,7 @@ export default defineBenchmarks({
       import { getIotsSchema } from ".";
     `,
     schema: "getIotsSchema()",
-    input: "t.OutputOf<typeof __schema>",
-    output: "t.TypeOf<typeof __schema>",
+    input: "t.OutputOf<typeof probeSchema>",
+    output: "t.TypeOf<typeof probeSchema>",
   },
 });

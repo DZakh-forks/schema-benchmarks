@@ -118,7 +118,7 @@ export default defineBenchmarks({
       import { getValibotSchema } from ".";
     `,
     schema: "getValibotSchema()",
-    input: "v.InferInput<typeof __schema>",
-    output: "v.InferOutput<typeof __schema>",
+    input: "v.InferInput<typeof probeSchema>",
+    output: "v.InferOutput<typeof probeSchema>",
   },
 });

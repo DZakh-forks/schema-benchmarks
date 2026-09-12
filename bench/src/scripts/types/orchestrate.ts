@@ -23,8 +23,8 @@ function toInferredType(text: string, instantiations: number): InferredType {
   };
 }
 
-/** The probe names the schema `__schema`; a reader of the site should see `schema`. */
-const toSnippet = (expression: string) => expression.replaceAll("__schema", "schema");
+/** The probe names the schema `probeSchema`; a reader of the site should see `schema`. */
+const toSnippet = (expression: string) => expression.replaceAll("probeSchema", "schema");
 
 const results: Array<TypesResult> = [];
 

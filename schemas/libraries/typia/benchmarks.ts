@@ -167,8 +167,8 @@ export default defineBenchmarks({
       import type { TypiaSchema } from ".";
     `,
     schema: "null as unknown as TypiaSchema",
-    input: "typeof __schema",
-    output: "typeof __schema",
+    input: "typeof probeSchema",
+    output: "typeof probeSchema",
     note: "the schema is a TypeScript type",
   },
 });
