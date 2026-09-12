@@ -120,5 +120,14 @@ export default defineBenchmarks({
     schema: "getValibotSchema()",
     input: "v.InferInput<typeof probeSchema>",
     output: "v.InferOutput<typeof probeSchema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const probeSchema: v.GenericSchema<JsonSchemaOutputData> = v.object({ id: v.number(), name: v.string(), price: v.number() });
+      `,
+      invalid: ts`
+        const probeSchema: v.GenericSchema<JsonSchemaOutputData> = v.object({ id: v.number(), name: v.string(), price: v.string() });
+      `,
+    },
   },
 });

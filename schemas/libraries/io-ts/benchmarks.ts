@@ -81,5 +81,14 @@ export default defineBenchmarks({
     schema: "getIotsSchema()",
     input: "t.OutputOf<typeof probeSchema>",
     output: "t.TypeOf<typeof probeSchema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const probeSchema: t.Type<JsonSchemaOutputData> = t.type({ id: t.number, name: t.string, price: t.number });
+      `,
+      invalid: ts`
+        const probeSchema: t.Type<JsonSchemaOutputData> = t.type({ id: t.number, name: t.string, price: t.string });
+      `,
+    },
   },
 });

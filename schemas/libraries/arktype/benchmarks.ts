@@ -124,10 +124,20 @@ export default defineBenchmarks({
   },
   types: {
     imports: ts`
+      import { type Type, type } from "arktype";
       import { getArkTypeSchema } from ".";
     `,
     schema: "getArkTypeSchema()",
     input: `(typeof probeSchema)["inferIn"]`,
     output: `(typeof probeSchema)["infer"]`,
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const probeSchema: Type<JsonSchemaOutputData> = type({ id: "number", name: "string", price: "number" });
+      `,
+      invalid: ts`
+        const probeSchema: Type<JsonSchemaOutputData> = type({ id: "number", name: "string", price: "string" });
+      `,
+    },
   },
 });

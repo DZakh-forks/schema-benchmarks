@@ -164,11 +164,21 @@ export default defineBenchmarks({
   },
   types: {
     imports: ts`
+      import typia from "typia";
       import type { TypiaSchema } from ".";
     `,
     schema: "null as unknown as TypiaSchema",
     input: "typeof probeSchema",
     output: "typeof probeSchema",
     note: "the schema is a TypeScript type",
+    fromType: {
+      style: "builder",
+      valid: ts`
+        const probeSchema: (input: unknown) => JsonSchemaOutputData = typia.createAssert<JsonSchemaOutputData>();
+      `,
+      invalid: ts`
+        const probeSchema: (input: unknown) => JsonSchemaOutputData = typia.createAssert<{ id: number; name: string; price: string }>();
+      `,
+    },
   },
 });

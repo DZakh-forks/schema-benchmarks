@@ -223,5 +223,14 @@ export default defineBenchmarks({
     schema: "getZodSchema()",
     input: "z.input<typeof probeSchema>",
     output: "z.output<typeof probeSchema>",
+    fromType: {
+      style: "builder",
+      valid: ts`
+        const probeSchema = z.toZod<JsonSchemaOutputData>()(z.object({ id: z.number(), name: z.string(), price: z.number() }));
+      `,
+      invalid: ts`
+        const probeSchema = z.toZod<JsonSchemaOutputData>()(z.object({ id: z.number(), name: z.string(), price: z.string() }));
+      `,
+    },
   },
 });

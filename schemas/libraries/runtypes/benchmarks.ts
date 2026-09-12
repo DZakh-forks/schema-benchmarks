@@ -60,11 +60,21 @@ export default defineBenchmarks({
   },
   types: {
     imports: ts`
+      import { Object as RtObject, String as RtString, Number as RtNumber, type Runtype } from "runtypes";
       import type { Static } from "runtypes";
       import { getRuntypesSchema } from ".";
     `,
     schema: "getRuntypesSchema()",
     input: "Static<typeof probeSchema>",
     output: "Static<typeof probeSchema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const probeSchema: Runtype.Core<JsonSchemaOutputData> = RtObject({ id: RtNumber, name: RtString, price: RtNumber });
+      `,
+      invalid: ts`
+        const probeSchema: Runtype.Core<JsonSchemaOutputData> = RtObject({ id: RtNumber, name: RtString, price: RtString });
+      `,
+    },
   },
 });

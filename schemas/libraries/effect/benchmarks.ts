@@ -184,5 +184,14 @@ export default defineBenchmarks({
     schema: "getEffectSchema()",
     input: "Schema.Schema.Encoded<typeof probeSchema>",
     output: "Schema.Schema.Type<typeof probeSchema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const probeSchema: Schema.Schema<JsonSchemaOutputData> = Schema.Struct({ id: Schema.Number, name: Schema.String, price: Schema.Number });
+      `,
+      invalid: ts`
+        const probeSchema: Schema.Schema<JsonSchemaOutputData> = Schema.Struct({ id: Schema.Number, name: Schema.String, price: Schema.String });
+      `,
+    },
   },
 });

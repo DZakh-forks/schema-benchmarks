@@ -1,3 +1,4 @@
+import type { TypesResult } from "@schema-benchmarks/bench";
 import { collator, compareStrings } from "@schema-benchmarks/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -41,6 +42,13 @@ export const Route = createFileRoute("/typescript/")({
   staticData: { crumb: "TypeScript" },
 });
 
+/** A library that infers nothing has no number to compare, so it sorts last either way. */
+const compareInference = (
+  a: TypesResult,
+  b: TypesResult,
+  read: (inference: NonNullable<TypesResult["inference"]>) => number,
+) => (a.inference ? read(a.inference) : Infinity) - (b.inference ? read(b.inference) : Infinity);
+
 function RouteComponent() {
   const { sortBy, sortDir, detail } = Route.useSearch();
   const { data } = useSuspenseQuery(getTypesBenchResults());
@@ -56,9 +64,9 @@ function RouteComponent() {
               case "downloads":
                 return compareDownloadsByPkgName(downloadsByPkgName, a, b);
               case "chars":
-                return a.schema.chars - b.schema.chars;
+                return compareInference(a, b, (result) => result.schema.chars);
               default:
-                return a.instantiations - b.instantiations;
+                return compareInference(a, b, (result) => result.instantiations);
             }
           },
           {

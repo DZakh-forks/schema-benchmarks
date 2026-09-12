@@ -192,7 +192,15 @@ export interface CodecBenchmarkConfig extends Omit<BaseBenchmarkConfig, "snippet
 }
 
 /**
- * How a library's inferred types are read, for the TypeScript inference benchmarks.
+ * How a library takes an existing type: `builder` is an API the type is passed to, which reports
+ * the field that doesn't match; `annotation` is the library's schema type on the declaration,
+ * which reports whatever assignability reports.
+ */
+export const fromTypeStyleSchema = /* @__PURE__ */ v.picklist(["builder", "annotation"]);
+export type FromTypeStyle = v.InferOutput<typeof fromTypeStyleSchema>;
+
+/**
+ * How a library's types are read, for the TypeScript inference benchmarks.
  *
  * The probe is written into the library's own folder, so `imports` can reach the schema module
  * relatively, and the schema it declares is called `probeSchema` - the type expressions below are
@@ -211,11 +219,29 @@ export interface TypeInferenceBenchmarkConfig {
   imports: string;
   /** Expression producing the schema, assigned to `probeSchema`. */
   schema: string;
-  /** Type expression for the type the schema accepts. */
-  input: string;
-  /** Type expression for the type the schema produces. */
-  output: string;
+  /** Type expression for the type the schema accepts. Leave out along with `output`. */
+  input?: string;
+  /** Type expression for the type the schema produces. Leave out along with `input`. */
+  output?: string;
+  /** Why the library infers nothing from a schema. Give it instead of `input` and `output`. */
+  noInference?: string;
   note?: string;
+  /**
+   * How a schema is built from a type that already exists, with the construction type checked -
+   * the reverse of inferring a type from a schema. Both entries are statements, and both are
+   * compiled: `valid` has to type check, and `invalid` has to fail, which is what shows the
+   * construction is checked rather than merely annotated.
+   *
+   * Leave it out when the library has no way to do it.
+   */
+  fromType?: {
+    style: FromTypeStyle;
+    /** Builds a schema for `JsonSchemaOutputData`. */
+    valid: string;
+    /** The same schema with `price` declared as a string. */
+    invalid: string;
+    note?: string;
+  };
 }
 
 export interface LibraryInfo {

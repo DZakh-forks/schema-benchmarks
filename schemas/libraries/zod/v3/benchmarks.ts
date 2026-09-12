@@ -111,5 +111,14 @@ export default defineBenchmarks({
     schema: "getZodSchema()",
     input: "z.input<typeof probeSchema>",
     output: "z.output<typeof probeSchema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const probeSchema: z.ZodType<JsonSchemaOutputData> = z.object({ id: z.number(), name: z.string(), price: z.number() });
+      `,
+      invalid: ts`
+        const probeSchema: z.ZodType<JsonSchemaOutputData> = z.object({ id: z.number(), name: z.string(), price: z.string() });
+      `,
+    },
   },
 });

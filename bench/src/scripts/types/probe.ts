@@ -142,14 +142,25 @@ export interface DirectionProbeResult {
   instantiations: number;
 }
 
-export interface TypeProbeResult {
+export interface InferenceProbeResult {
   schema: { text: string; instantiations: number };
   input: DirectionProbeResult;
   output: DirectionProbeResult;
+  /** Declaring the schema and reading its output type - what a consumer pays for both. */
   instantiations: number;
 }
 
-const PRELUDE = `import type { ProductData } from "#src";\n`;
+export interface FromTypeProbeResult {
+  /** The wrong schema was rejected, so the construction really is checked against the type. */
+  checked: boolean;
+}
+
+export interface TypeProbeResult {
+  inference?: InferenceProbeResult;
+  fromType?: FromTypeProbeResult;
+}
+
+const PRELUDE = `import type { JsonSchemaOutputData, ProductData } from "#src";\n`;
 const SCHEMA_DECL = (config: TypeInferenceBenchmarkConfig) =>
   `const probeSchema = ${config.schema};\n`;
 const INPUT_DECL = (config: TypeInferenceBenchmarkConfig) => `type ProbeInput = ${config.input};\n`;
@@ -179,13 +190,80 @@ const assertChecks = (label: string, { diagnostics }: Checked) => {
   }
 };
 
+// A schema built from a type is only worth anything if the compiler rejects a wrong one, so the
+// deliberately wrong version is compiled too and has to fail.
+const probeFromType = (
+  fileName: string,
+  imports: string,
+  fromType: NonNullable<TypeInferenceBenchmarkConfig["fromType"]>,
+): FromTypeProbeResult => {
+  const valid = check(fileName, `${imports}${fromType.valid}\n`);
+  assertChecks("from-type", valid);
+  const invalid = check(fileName, `${imports}${fromType.invalid}\n`);
+  return { checked: invalid.diagnostics.length > 0 };
+};
+
+const probeInference = (
+  fileName: string,
+  imports: string,
+  config: TypeInferenceBenchmarkConfig,
+): InferenceProbeResult => {
+  const schema = `${imports}${SCHEMA_DECL(config)}`;
+  const baseline = check(fileName, imports);
+  assertChecks("imports", baseline);
+  const schemaOnly = check(fileName, schema);
+  assertChecks("schema", schemaOnly);
+  const withInput = check(fileName, `${schema}${INPUT_DECL(config)}`);
+  assertChecks("input", withInput);
+  const withOutput = check(fileName, `${schema}${OUTPUT_DECL(config)}`);
+  assertChecks("output", withOutput);
+
+  const both = `${schema}${INPUT_DECL(config)}${OUTPUT_DECL(config)}`;
+  const withBoth = check(fileName, both);
+  assertChecks("combined", withBoth);
+  const types = readAliases(withBoth.program, withBoth.file);
+
+  // The comparisons are checked on their own: they are how the result is judged, not part of
+  // what a user pays to infer the types.
+  const withMatches = check(fileName, `${both}${MATCH_DECLS}`);
+  assertChecks("match", withMatches);
+  const matches = readAliases(withMatches.program, withMatches.file);
+
+  const isTrue = (name: string) => matches[name] === "true";
+  return {
+    schema: {
+      text: readSchemaType(withBoth.program, withBoth.file),
+      instantiations: schemaOnly.instantiations - baseline.instantiations,
+    },
+    input: {
+      text: types.ProbeInput ?? "",
+      match: toMatch(
+        isTrue("ProbeInputIsAny"),
+        isTrue("ProbeInputToData"),
+        isTrue("ProbeDataToInput"),
+      ),
+      instantiations: withInput.instantiations - schemaOnly.instantiations,
+    },
+    output: {
+      text: types.ProbeOutput ?? "",
+      match: toMatch(
+        isTrue("ProbeOutputIsAny"),
+        isTrue("ProbeOutputToData"),
+        isTrue("ProbeDataToOutput"),
+      ),
+      instantiations: withOutput.instantiations - schemaOnly.instantiations,
+    },
+    instantiations: withOutput.instantiations - baseline.instantiations,
+  };
+};
+
 /**
  * Measures one library. `directory` is the library's folder under `schemas/libraries`.
  *
  * Every count is a delta: the bare imports are subtracted from the schema declaration, and the
  * schema declaration from each type extraction, so a number covers only the work its own line
- * added. The headline `instantiations` is the realistic cost of the whole thing - declaring the
- * schema and reading both types out of it.
+ * added. The headline `instantiations` is what a consumer pays for a schema and the type it
+ * produces - declaring the schema and reading its output type.
  */
 export const probeTypes = (
   directory: string,
@@ -193,53 +271,10 @@ export const probeTypes = (
 ): TypeProbeResult => {
   const fileName = path.join(directory, PROBE_FILE_NAME);
   const imports = `${PRELUDE}${config.imports}\n`;
-  const schema = `${imports}${SCHEMA_DECL(config)}`;
   try {
-    const baseline = check(fileName, imports);
-    assertChecks("imports", baseline);
-    const schemaOnly = check(fileName, schema);
-    assertChecks("schema", schemaOnly);
-    const withInput = check(fileName, `${schema}${INPUT_DECL(config)}`);
-    assertChecks("input", withInput);
-    const withOutput = check(fileName, `${schema}${OUTPUT_DECL(config)}`);
-    assertChecks("output", withOutput);
-
-    const both = `${schema}${INPUT_DECL(config)}${OUTPUT_DECL(config)}`;
-    const withBoth = check(fileName, both);
-    assertChecks("combined", withBoth);
-    const types = readAliases(withBoth.program, withBoth.file);
-
-    // The comparisons are checked on their own: they are how the result is judged, not part of
-    // what a user pays to infer the types.
-    const withMatches = check(fileName, `${both}${MATCH_DECLS}`);
-    assertChecks("match", withMatches);
-    const matches = readAliases(withMatches.program, withMatches.file);
-
-    const isTrue = (name: string) => matches[name] === "true";
     return {
-      schema: {
-        text: readSchemaType(withBoth.program, withBoth.file),
-        instantiations: schemaOnly.instantiations - baseline.instantiations,
-      },
-      input: {
-        text: types.ProbeInput ?? "",
-        match: toMatch(
-          isTrue("ProbeInputIsAny"),
-          isTrue("ProbeInputToData"),
-          isTrue("ProbeDataToInput"),
-        ),
-        instantiations: withInput.instantiations - schemaOnly.instantiations,
-      },
-      output: {
-        text: types.ProbeOutput ?? "",
-        match: toMatch(
-          isTrue("ProbeOutputIsAny"),
-          isTrue("ProbeOutputToData"),
-          isTrue("ProbeDataToOutput"),
-        ),
-        instantiations: withOutput.instantiations - schemaOnly.instantiations,
-      },
-      instantiations: withBoth.instantiations - baseline.instantiations,
+      inference: config.noInference ? undefined : probeInference(fileName, imports, config),
+      fromType: config.fromType && probeFromType(fileName, imports, config.fromType),
     };
   } finally {
     probe = undefined;

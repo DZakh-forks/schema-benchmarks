@@ -291,11 +291,23 @@ export default defineBenchmarks({
   },
   types: {
     imports: ts`
+      import type { Satisfies } from "@schema-benchmarks/utils";
       import * as Type from "typebox";
       import { getTypeboxSchema } from ".";
     `,
     schema: "getTypeboxSchema()",
     input: "Type.StaticEncode<typeof probeSchema>",
     output: "Type.StaticDecode<typeof probeSchema>",
+    fromType: {
+      style: "annotation",
+      valid: ts`
+        const probeSchema = Type.Object({ id: Type.Number(), name: Type.String(), price: Type.Number() });
+        type ProbeChecked = Satisfies<Type.Static<typeof probeSchema>, JsonSchemaOutputData>;
+      `,
+      invalid: ts`
+        const probeSchema = Type.Object({ id: Type.Number(), name: Type.String(), price: Type.String() });
+        type ProbeChecked = Satisfies<Type.Static<typeof probeSchema>, JsonSchemaOutputData>;
+      `,
+    },
   },
 });

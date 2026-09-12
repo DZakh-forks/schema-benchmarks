@@ -213,5 +213,14 @@ export default defineBenchmarks({
     schema: "getSurySchema()",
     input: "S.Input<typeof probeSchema>",
     output: "S.Output<typeof probeSchema>",
+    fromType: {
+      style: "builder",
+      valid: ts`
+        const probeSchema = S.schemaOf<JsonSchemaOutputData>()({ id: S.number, name: S.string, price: S.number });
+      `,
+      invalid: ts`
+        const probeSchema = S.schemaOf<JsonSchemaOutputData>()({ id: S.number, name: S.string, price: S.string });
+      `,
+    },
   },
 });
