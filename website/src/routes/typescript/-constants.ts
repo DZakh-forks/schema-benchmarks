@@ -20,7 +20,10 @@ export const typeMatchLabels: Record<TypeMatch, { label: string; supporting: str
     label: "Narrower",
     supporting: "The inferred type rejects values the data type allows.",
   },
-  any: { label: "Any", supporting: "The library infers `any`, so nothing is type checked." },
+  any: {
+    label: "Any",
+    supporting: "The inferred type contains `any`, so that part of it is not type checked.",
+  },
   mismatch: { label: "Mismatch", supporting: "The inferred type is not the data type." },
 };
 

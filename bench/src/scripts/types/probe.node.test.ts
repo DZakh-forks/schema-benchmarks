@@ -5,6 +5,16 @@ import { describe, expect, it } from "vitest";
 
 import { probeTypes, SCHEMAS_DIR } from "#src/scripts/types/probe.ts";
 
+const probeMatches = (schema: string) => {
+  const inference = probeTypes(path.join(SCHEMAS_DIR, "libraries", "sury"), {
+    imports: "",
+    schema: `0 as unknown as ${schema}`,
+    input: "typeof probeSchema",
+    output: "typeof probeSchema",
+  }).inference;
+  return { input: inference?.input.match, output: inference?.output.match };
+};
+
 const probe = (library: string, fromType: TypeInferenceBenchmarkConfig["fromType"]) =>
   probeTypes(path.join(SCHEMAS_DIR, "libraries", library), {
     imports: "",
@@ -70,5 +80,19 @@ const probeSchema = typia.createAssert<Product>();`,
 const probeSchema = S.schemaOf<Product>()({ id: S.number, name: S.string });`,
       }),
     ).toThrow(/from-type probe does not type check/);
+  });
+});
+
+describe("judging an inferred type", () => {
+  it("calls the data type itself exact", () => {
+    expect(probeMatches("ProductData")).toEqual({ input: "exact", output: "exact" });
+  });
+
+  it("catches an `any` nested in an otherwise matching type", () => {
+    // assignable to and from `ProductData` in both directions, so only a walk of the type finds it
+    expect(probeMatches(`Omit<ProductData, "title"> & { title: any }`)).toEqual({
+      input: "any",
+      output: "any",
+    });
   });
 });

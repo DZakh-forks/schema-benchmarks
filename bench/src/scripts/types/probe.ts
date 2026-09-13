@@ -38,6 +38,9 @@ const getCompilerOptions = () => {
 };
 
 let probe: { fileName: string; text: string; version: number } | undefined;
+// Monotonic across the whole run: the language service caches by version, so a counter that
+// restarted with each probe would hand back the previous probe's diagnostics.
+let probeVersion = 0;
 
 const createService = () => {
   const options = getCompilerOptions();
@@ -76,7 +79,7 @@ interface Checked {
 }
 
 const check = (fileName: string, text: string): Checked => {
-  probe = { fileName, text, version: (probe?.version ?? 0) + 1 };
+  probe = { fileName, text, version: ++probeVersion };
   // The file has to exist on disk as well: module resolution for the library's own relative
   // imports is answered by the real file system, not by the host's overlay.
   fs.writeFileSync(fileName, text);
@@ -133,6 +136,45 @@ const readSchemaType = (program: ts.Program, file: ts.SourceFile) => {
   return "";
 };
 
+/**
+ * Whether `any` appears anywhere in the type. `0 extends 1 & T` only answers for the type as a
+ * whole: a field typed `any` is assignable to and from the data type, so an object with one reads
+ * as an exact match while nothing about that field is checked.
+ */
+const containsAny = (
+  checker: ts.TypeChecker,
+  type: ts.Type,
+  seen = new Set<ts.Type>(),
+): boolean => {
+  if (type.flags & ts.TypeFlags.Any) return true;
+  if (seen.has(type)) return false;
+  seen.add(type);
+  if (type.isUnionOrIntersection()) {
+    return type.types.some((member) => containsAny(checker, member, seen));
+  }
+  const nested = [
+    ...checker.getTypeArguments(type as ts.TypeReference),
+    ...[ts.IndexKind.String, ts.IndexKind.Number].map((kind) =>
+      checker.getIndexTypeOfType(type, kind),
+    ),
+    ...type.getProperties().map((property) => checker.getTypeOfSymbol(property)),
+  ];
+  return nested.some((member) => !!member && containsAny(checker, member, seen));
+};
+
+/** Whether the type a `type X = ...` of a checked probe names contains `any`. */
+const aliasContainsAny = (program: ts.Program, file: ts.SourceFile, name: string) => {
+  const checker = program.getTypeChecker();
+  const alias = file.statements.find(
+    (node) => ts.isTypeAliasDeclaration(node) && node.name.text === name,
+  );
+  return (
+    !!alias &&
+    ts.isTypeAliasDeclaration(alias) &&
+    containsAny(checker, checker.getTypeAtLocation(alias.name))
+  );
+};
+
 /** How an inferred type relates to the data the schema is meant to describe. */
 export type TypeMatch = "exact" | "narrower" | "wider" | "any" | "mismatch";
 
@@ -167,17 +209,14 @@ const INPUT_DECL = (config: TypeInferenceBenchmarkConfig) => `type ProbeInput = 
 const OUTPUT_DECL = (config: TypeInferenceBenchmarkConfig) =>
   `type ProbeOutput = ${config.output};\n`;
 
-// `0 extends 1 & T` is the standard `any` detector: only `any` distributes into both sides.
-const MATCH_DECLS = `type ProbeInputIsAny = 0 extends 1 & ProbeInput ? true : false;
-type ProbeOutputIsAny = 0 extends 1 & ProbeOutput ? true : false;
-type ProbeInputToData = [ProbeInput] extends [ProductData] ? true : false;
+const MATCH_DECLS = `type ProbeInputToData = [ProbeInput] extends [ProductData] ? true : false;
 type ProbeDataToInput = [ProductData] extends [ProbeInput] ? true : false;
 type ProbeOutputToData = [ProbeOutput] extends [ProductData] ? true : false;
 type ProbeDataToOutput = [ProductData] extends [ProbeOutput] ? true : false;
 `;
 
-const toMatch = (isAny: boolean, toData: boolean, fromData: boolean): TypeMatch => {
-  if (isAny) return "any";
+const toMatch = (hasAny: boolean, toData: boolean, fromData: boolean): TypeMatch => {
+  if (hasAny) return "any";
   if (toData && fromData) return "exact";
   if (toData) return "narrower";
   if (fromData) return "wider";
@@ -261,7 +300,7 @@ const probeInference = (
     input: {
       text: types.ProbeInput ?? "",
       match: toMatch(
-        isTrue("ProbeInputIsAny"),
+        aliasContainsAny(withBoth.program, withBoth.file, "ProbeInput"),
         isTrue("ProbeInputToData"),
         isTrue("ProbeDataToInput"),
       ),
@@ -270,7 +309,7 @@ const probeInference = (
     output: {
       text: types.ProbeOutput ?? "",
       match: toMatch(
-        isTrue("ProbeOutputIsAny"),
+        aliasContainsAny(withBoth.program, withBoth.file, "ProbeOutput"),
         isTrue("ProbeOutputToData"),
         isTrue("ProbeDataToOutput"),
       ),

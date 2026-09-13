@@ -1,4 +1,4 @@
-import type { InferredDirection, TypesResult } from "@schema-benchmarks/bench";
+import type { InferredDirection, InferredType, TypesResult } from "@schema-benchmarks/bench";
 import { numFormatter } from "@schema-benchmarks/utils";
 import { useNavigate } from "@tanstack/react-router";
 import bem from "react-bem-helper";
@@ -43,6 +43,13 @@ function Section({
   );
 }
 
+/**
+ * `chars` is the length of the type the compiler printed; a type past the results file's cap is
+ * stored as a prefix, so the text below is not all of it and has to say so.
+ */
+const charsLabel = ({ chars, truncated }: InferredType, formatCount: (value: number) => string) =>
+  `${formatCount(chars)} characters${truncated ? " · shown truncated" : ""}`;
+
 function Direction({
   title,
   direction,
@@ -55,7 +62,7 @@ function Direction({
   return (
     <Section
       title={title}
-      supporting={`${typeMatchLabels[direction.match].label} · ${formatCount(direction.instantiations)} instantiations · ${formatCount(direction.chars)} characters`}
+      supporting={`${typeMatchLabels[direction.match].label} · ${formatCount(direction.instantiations)} instantiations · ${charsLabel(direction, formatCount)}`}
     >
       <CodeBlock>{direction.snippet}</CodeBlock>
       <CodeBlock showCopy>{direction.text}</CodeBlock>
@@ -117,7 +124,7 @@ export function TypesDetail({ result }: TypesDetailProps) {
                   <>
                     <Section
                       title="Type on hover"
-                      supporting={`${formatCount(result.inference.schema.instantiations)} instantiations · ${formatCount(result.inference.schema.chars)} characters`}
+                      supporting={`${formatCount(result.inference.schema.instantiations)} instantiations · ${charsLabel(result.inference.schema, formatCount)}`}
                     >
                       <CodeBlock showCopy>{result.inference.schema.text}</CodeBlock>
                     </Section>

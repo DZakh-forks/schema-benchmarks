@@ -190,7 +190,7 @@ export default defineBenchmarks({
       // setup-start
       const encode = S.encodeOrThrow(S.bigint, S.string);
       // setup-end
-      encoder(data)
+      encode(data)
       `,
     },
     decode: {
@@ -201,7 +201,7 @@ export default defineBenchmarks({
       // setup-start
       const decode = S.decodeOrThrow(S.string, S.bigint);
       // setup-end
-      decoder(data)
+      decode(data)
       `,
     },
   },
